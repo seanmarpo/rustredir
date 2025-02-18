@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+    <head>
+        <script src="https://cdn.jsdelivr.net/npm/ua-parser-js/dist/ua-parser.min.js"></script>
+    </head>
+    <body>
+        <h2>Rustdesk Redirector</h2>
+        <p>Determining the correct version of Rustdesk for your computer...</p>
+        <p>
+            Your download will automatically begin, please check your downloads
+            folder or download manager in your browser.
+        </p>
+        <script>
+            const uap = new UAParser();
+            const res = uap.getResult();
+
+            const latestDownload =
+                "https://github.com/rustdesk/rustdesk/releases/latest";
+            var latestVersion = "";
+            var downloadLink = "";
+
+            // Get the latest version of Rustdesk from the Github API
+            // TODO: Rewrite this with fetch() and async/await
+            var xhr = new XMLHttpRequest();
+            xhr.open(
+                "GET",
+                "https://api.github.com/repos/rustdesk/rustdesk/releases/latest",
+                false,
+            );
+            xhr.send(null);
+
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                latestVersion = data.tag_name.replace("v", "");
+            } else {
+                console.error("Error fetching latest version:", xhr.status);
+            }
+
+            switch (res.os.name) {
+                case "Windows":
+                    downloadLink = `${latestDownload}/download/rustdesk-${latestVersion}-x86_64.exe`;
+                    break;
+                case "macOS":
+                    if (res.cpu.architecture) {
+                        downloadLink = `${latestDownload}/download/rustdesk-${latestVersion}-x86_64.dmg`;
+                    } else {
+                        downloadLink = `${latestDownload}/download/rustdesk-${latestVersion}-aarch64.dmg`;
+                    }
+                    break;
+                default:
+                    downloadLink = latestDownload;
+                    break;
+            }
+
+            console.log(`Calculated download link: ${downloadLink}`);
+
+            document.location.href = downloadLink;
+        </script>
+    </body>
+</html>
